@@ -132,12 +132,17 @@ Overall, the project shows that while predicting readmissions is challenging due
 
 ## Running the Project
 
+## Running the Project
+
 Install the required dependencies and train the model first.
 
--python main.py
+```bash
+python main.py
+```
 Then launch the Streamlit interface:
--streamlit run app/streamlit_app.py
-
+```bash
+streamlit run app/streamlit_app.py
+```
 This will open a local web app where you can experiment with different patient profiles and see the predicted readmission risk.
 
 ---
