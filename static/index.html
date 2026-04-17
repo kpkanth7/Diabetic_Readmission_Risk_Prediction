@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetic Readmission Risk Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>">
+</head>
+<body>
+    <div class="background-gradient"></div>
+    
+    <main class="container">
+        <header>
+            <h1>Diabetic Readmission Risk Predictor</h1>
+            <p>Predict whether a diabetic patient is at risk of <strong>hospital readmission within 30 days</strong> using a machine learning model trained on the UCI Diabetes 130-US Hospitals dataset.</p>
+        </header>
+
+        <div class="content-wrapper">
+            <form id="prediction-form" class="glass-panel">
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h2>Patient Demographics</h2>
+                        
+                        <div class="input-group">
+                            <label for="age">Age Group</label>
+                            <select id="age" name="age" required>
+                                <option value="[0-10)">[0-10)</option>
+                                <option value="[10-20)">[10-20)</option>
+                                <option value="[20-30)">[20-30)</option>
+                                <option value="[30-40)">[30-40)</option>
+                                <option value="[40-50)">[40-50)</option>
+                                <option value="[50-60)">[50-60)</option>
+                                <option value="[60-70)">[60-70)</option>
+                                <option value="[70-80)" selected>[70-80)</option>
+                                <option value="[80-90)">[80-90)</option>
+                                <option value="[90-100)">[90-100)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="race">Race</label>
+                            <select id="race" name="race" required>
+                                <option value="Caucasian" selected>Caucasian</option>
+                                <option value="AfricanAmerican">AfricanAmerican</option>
+                                <option value="Asian">Asian</option>
+                                <option value="Hispanic">Hispanic</option>
+                                <option value="Other">Other</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="Male" selected>Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Hospital Encounter Details</h2>
+                        
+                        <div class="input-group">
+                            <label for="time_in_hospital">Days in hospital: <span id="time_val">3</span></label>
+                            <input type="range" id="time_in_hospital" name="time_in_hospital" min="1" max="14" value="3" oninput="document.getElementById('time_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="num_lab_procedures">Lab procedures: <span id="lab_val">40</span></label>
+                            <input type="range" id="num_lab_procedures" name="num_lab_procedures" min="1" max="100" value="40" oninput="document.getElementById('lab_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="num_procedures">Procedures: <span id="proc_val">1</span></label>
+                            <input type="range" id="num_procedures" name="num_procedures" min="0" max="10" value="1" oninput="document.getElementById('proc_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="num_medications">Medications: <span id="med_val">10</span></label>
+                            <input type="range" id="num_medications" name="num_medications" min="1" max="50" value="10" oninput="document.getElementById('med_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="number_outpatient">Outpatient visits: <span id="out_val">0</span></label>
+                            <input type="range" id="number_outpatient" name="number_outpatient" min="0" max="20" value="0" oninput="document.getElementById('out_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="number_emergency">Emergency visits: <span id="emg_val">0</span></label>
+                            <input type="range" id="number_emergency" name="number_emergency" min="0" max="20" value="0" oninput="document.getElementById('emg_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="number_inpatient">Inpatient visits: <span id="inp_val">0</span></label>
+                            <input type="range" id="number_inpatient" name="number_inpatient" min="0" max="20" value="0" oninput="document.getElementById('inp_val').innerText = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="number_diagnoses">Diagnoses: <span id="diag_val">5</span></label>
+                            <input type="range" id="number_diagnoses" name="number_diagnoses" min="1" max="16" value="5" oninput="document.getElementById('diag_val').innerText = this.value">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submit-btn">
+                    <span class="btn-text">Predict Readmission Risk</span>
+                    <div class="loader" style="display: none;"></div>
+                </button>
+            </form>
+
+            <div id="result-panel" class="glass-panel result-panel hidden">
+                <h2>Prediction Result</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Predicted Class</span>
+                        <strong id="res-class" class="metric-value">--</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Readmission Probability</span>
+                        <strong id="res-prob" class="metric-value">--</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Risk Band</span>
+                        <strong id="res-band" class="metric-value">--</strong>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                
+                <div id="res-message" class="alert-message"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>This application is my fun portfolio project only and should not be used for real clinical decision-making.</p>
+        </footer>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
