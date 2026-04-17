@@ -11,8 +11,83 @@ from src.preprocess import clean_features
 
 st.set_page_config(
     page_title="Diabetic Readmission Risk Predictor",
-    layout="wide"
+    layout="wide",
+    page_icon="🏥"
 )
+
+# Custom CSS for premium design
+st.markdown("""
+    <style>
+    /* Import modern font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    /* Global styling */
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Main background gradient */
+    .stApp {
+        background: radial-gradient(circle at top left, #1a202c 0%, #0b0f19 100%);
+    }
+
+    /* Style the main title */
+    h1 {
+        background: linear-gradient(90deg, #00f2fe, #4facfe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+
+    /* Glassmorphism for inputs and metrics */
+    .stSelectbox div[data-baseweb="select"], .stSlider, .stMetric {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .stMetric:hover {
+        transform: translateY(-5px);
+        border-color: #00f2fe;
+        box-shadow: 0 8px 20px rgba(0, 242, 254, 0.15);
+    }
+
+    /* Style the prediction button */
+    .stButton > button {
+        background: linear-gradient(90deg, #00f2fe, #4facfe);
+        color: #0b0f19;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+    }
+
+    /* Alerts / Success / Error */
+    .stAlert {
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Make dividing lines subtle */
+    hr {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 
 @st.cache_resource
