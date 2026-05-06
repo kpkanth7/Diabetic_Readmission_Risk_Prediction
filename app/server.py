@@ -77,11 +77,10 @@ def predict(data: PatientData):
 
     return {"probability": prob, "prediction": pred, "risk_band": risk_band}
 
-# Local dev: serve static files
 static_dir = os.path.join(BASE_DIR, "static")
-if os.path.isdir(static_dir):
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-    @app.get("/")
-    def read_index():
-        return FileResponse(os.path.join(static_dir, "index.html"))
+@app.get("/")
+def read_index():
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
