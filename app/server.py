@@ -1,6 +1,5 @@
 import sys
 import os
-import pandas as pd
 import joblib
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -8,7 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
 
 from src.preprocess import clean_features
 
@@ -22,17 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model and template row on startup
-model = None
-template_row = None
-
-@app.on_event("startup")
-def load_artifacts():
-    global model, template_row
-    model = joblib.load("models/best_model.pkl")
-    raw_df = pd.read_csv("data/raw/diabetic_data.csv")
-    template_df = clean_features(raw_df.copy())
-    template_row = template_df.drop(columns=["readmitted"]).iloc[[0]].copy()
+model = joblib.load(os.path.join(BASE_DIR, "models", "best_model.pkl"))
+template_row = joblib.load(os.path.join(BASE_DIR, "models", "template_row.pkl"))
 
 class PatientData(BaseModel):
     age: str
@@ -49,18 +40,12 @@ class PatientData(BaseModel):
 
 @app.post("/predict")
 def predict(data: PatientData):
-    global model, template_row
     input_df = template_row.copy()
-    
-    # Update categorical fields
-    if "age" in input_df.columns:
-        input_df.at[input_df.index[0], "age"] = data.age
-    if "race" in input_df.columns:
-        input_df.at[input_df.index[0], "race"] = data.race
-    if "gender" in input_df.columns:
-        input_df.at[input_df.index[0], "gender"] = data.gender
 
-    # Update numeric fields
+    for col, val in [("age", data.age), ("race", data.race), ("gender", data.gender)]:
+        if col in input_df.columns:
+            input_df.at[input_df.index[0], col] = val
+
     updates = {
         "time_in_hospital": data.time_in_hospital,
         "num_lab_procedures": data.num_lab_procedures,
@@ -76,32 +61,27 @@ def predict(data: PatientData):
         if col in input_df.columns:
             input_df.at[input_df.index[0], col] = val
 
-    # Apply exactly the same cleaning used in training
     input_df = clean_features(input_df)
 
-    # Align columns with what the trained model expects
     expected_cols = model.named_steps["preprocessor"].feature_names_in_
     input_df = input_df[expected_cols]
 
-    # Predict
     prob = float(model.predict_proba(input_df)[0][1])
     pred = int(model.predict(input_df)[0])
-    
+
     risk_band = "Low"
     if prob >= 0.15 and prob < 0.35:
         risk_band = "Moderate"
     elif prob >= 0.35:
         risk_band = "High"
 
-    return {
-        "probability": prob,
-        "prediction": pred,
-        "risk_band": risk_band
-    }
+    return {"probability": prob, "prediction": pred, "risk_band": risk_band}
 
-# Serve static files for frontend
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Local dev: serve static files
+static_dir = os.path.join(BASE_DIR, "static")
+if os.path.isdir(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-@app.get("/")
-def read_index():
-    return FileResponse("static/index.html")
+    @app.get("/")
+    def read_index():
+        return FileResponse(os.path.join(static_dir, "index.html"))

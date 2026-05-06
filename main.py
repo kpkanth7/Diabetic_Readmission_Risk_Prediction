@@ -1,3 +1,4 @@
+import joblib
 from src.data_loader import load_data
 from src.preprocess import preprocess_data
 from src.train import train_model
@@ -20,6 +21,8 @@ def main():
     print("Evaluating model...")
 
     evaluate_model(model, X_test, y_test)
+
+    joblib.dump(X.iloc[[0]].copy(), "models/template_row.pkl")
 
     print("Model training complete.")
 

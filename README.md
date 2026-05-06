@@ -1,6 +1,6 @@
 # Diabetic Readmission Risk Prediction
 
-**🚀 Live Application:** [https://diabetic-predict-readmission.onrender.com](https://diabetic-predict-readmission.onrender.com)
+**🚀 Live Application:** [https://diabetic-readmission-risk-prediction.vercel.app](https://diabetic-readmission-risk-prediction.vercel.app)
 
 ## Goal of the Project
 
@@ -134,7 +134,7 @@ Overall, the project shows that while predicting readmissions is challenging due
 
 ## Running the Project Locally
 
-Install the required dependencies and train the model first.
+Install dependencies and train the model first.
 
 ```bash
 pip install -r requirements.txt
@@ -147,7 +147,24 @@ Then launch the FastAPI web server:
 python -m uvicorn app.server:app --host 0.0.0.0 --port 8000
 ```
 
-This will open a local web app at `http://localhost:8000` where you can interact with the beautiful UI, experiment with different patient profiles, and see the predicted readmission risk instantly.
+Open `http://localhost:8000` to interact with the UI.
+
+---
+
+## Deployment
+
+The app is deployed on **Vercel** using a FastAPI serverless backend (`api/index.py`) and static frontend assets served from `public/`.
+
+**Architecture on Vercel:**
+- `/predict` → Python serverless function (FastAPI + Mangum ASGI adapter)
+- `/*` → Static CDN (HTML, CSS, JS from `public/`)
+
+To deploy your own instance:
+
+```bash
+npm i -g vercel
+vercel --prod --name diabetic-readmission-risk-prediction
+```
 
 ---
 
